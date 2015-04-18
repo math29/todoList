@@ -32,6 +32,7 @@ io.sockets.on('connection', function (socket) {
         console.log('on retire une task');
         todolist.splice(id, 1);
         socket.broadcast.emit('supprimer', id);
+        socket.emit('supprimer', id);
     }); 
 });
 /*

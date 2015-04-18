@@ -52,14 +52,14 @@
                 return false; // Permet de bloquer l'envoi "classique" du formulaire
             });
 
-            $('.delete').click(function () {
+            $(document).on('click', '.delete', function () {
                 var $deleted = $(this);
-                var id = $deleted.attr('id');
+                var id = parseInt($deleted.attr('id'));
                 console.log(id);
+                socket.emit('supprimer', id);
                 /*socket.emit('ajouter', data); // Transmet le message aux autres
                 insereTask(data); // Affiche le message aussi sur notre page
                 $('#newtodo').val('').focus(); // Vide la zone de Chat et remet le focus dessus*/
-                return false; // Permet de bloquer l'envoi "classique" du formulaire
             });
             
             // Ajoute une task dans la page
@@ -69,7 +69,7 @@
             }
 
             function deleteTask(id) {
-
+                $('#'+id).parent().remove();
             }
         </script>
     </body>
