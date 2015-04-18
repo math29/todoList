@@ -16,16 +16,14 @@ app.get('/todo', function(req, res) {
 
 io.sockets.on('connection', function (socket) {
     console.log('Connexion d\'un nouvel utilisateur');
-    if (typeof(todolist) != 'undefined') {
-        socket.emit('nbTasksRefresh', todolist.length);
-    }
     //socket.emit('refresh_nb_tasks', todolist.length);
     // Dès qu'on nous donne un pseudo, on le stocke en variable de session et on informe les autres personnes
     socket.on('ajouter', function(task) {
         if(task != ''){
             console.log('on push une task');
             todolist.push(task);
-            socket.broadcast.emit('ajouter', task);
+            socket.emit('ajouter', {task : task, num_id : todolist.length-1}); 
+            socket.broadcast.emit('ajouter', {task : task, num_id : todolist.length-1}); 
         }
     });
 

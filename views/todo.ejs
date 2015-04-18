@@ -32,7 +32,7 @@
 
             // Quand on reçoit un message, on l'insère dans la page
             socket.on('ajouter', function(data) {
-                insereTask(data);
+                insereTask(data.task, data.num_id);
             });
 
             socket.on('supprimer', function(id) {
@@ -48,7 +48,6 @@
             $('#form_todo').submit(function () {
                 var data = $('#newtodo').val();
                 socket.emit('ajouter', data); // Transmet le message aux autres
-                insereTask(data); // Affiche le message aussi sur notre page
                 $('#newtodo').val('').focus(); // Vide la zone de Chat et remet le focus dessus
                 return false; // Permet de bloquer l'envoi "classique" du formulaire
             });
@@ -64,10 +63,9 @@
             });
             
             // Ajoute une task dans la page
-            function insereTask(data) {
-                data.forEach(function(entry){
-                    $('#zone_todo').prepend('<li><button class="delete" id="<%= index %>">✘</button> <%= todo %></li>');
-                });
+            function insereTask(task, num_id) {
+                var id = num_id.toString();
+                $('#zone_todo').append('<li><button class="delete" id='+id+'>✘</button>'+task+'</li>');
             }
 
             function deleteTask(id) {
