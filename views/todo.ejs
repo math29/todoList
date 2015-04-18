@@ -14,12 +14,44 @@
             <li><a href="/todo/supprimer/<%= index %>">✘</a> <%= todo %></li>
         <% }); %>
         </ul>
-        <form action="/todo/ajouter/" method="post">
+        <form action="/todo" method="post" id="form_todo">
             <p>
                 <label for="newtodo">Que dois-je faire ?</label>
                 <input type="text" name="newtodo" id="newtodo" autofocus />
                 <input type="submit" />
             </p>
         </form>
+
+        <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+
+            // Connexion à socket.io
+            var socket = io.connect('http://localhost:8080');
+
+            // Quand on reçoit un message, on l'insère dans la page
+            socket.on('message', function(data) {
+                insereMessage(data.pseudo, data.message)
+            })
+
+            // Quand un nouveau client se connecte, on affiche l'information
+            socket.on('nouveau_client', function(pseudo) {
+                $('#zone_chat').prepend('<p><em>' + pseudo + ' a rejoint le Chat !</em></p>');
+            })
+
+            // Lorsqu'on envoie le formulaire, on transmet le message et on l'affiche sur la page
+            $('#form_todo').submit(function () {
+                var data = $('#newtodo').val();
+                socket.emit('ajouter', data); // Transmet le message aux autres
+                insereTask(data); // Affiche le message aussi sur notre page
+                $('#newtodo').val('').focus(); // Vide la zone de Chat et remet le focus dessus
+                return false; // Permet de bloquer l'envoi "classique" du formulaire
+            });
+            
+            // Ajoute un message dans la page
+            function insereTask(data) {
+                $('#zone_chat').prepend('<li><a href="/todo/supprimer/1">✘</a>'+data+'</li>');
+            }
+        </script>
     </body>
 </html>

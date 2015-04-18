@@ -1,45 +1,45 @@
-var express = require('express');
-var session = require('cookie-session'); // Charge le middleware de sessions
+var app = require('express')(),
+    server = require('http').createServer(app),
+    io = require('socket.io').listen(server);
 var bodyParser = require('body-parser'); // Charge le middleware de gestion des paramètres
-var urlencodedParser = bodyParser.urlencoded({ extended: false });
-
-var app = express();
-
-/* On utilise les sessions */
-
-app.use(session({secret: 'todotopsecret'}));
-
-/* S'il n'y a pas de todolist dans la session,
-
-on en crée une vide sous forme d'array avant la suite */
 
 app.use(function(req, res, next){
-    if (typeof(req.session.todolist) == 'undefined') {
-        req.session.todolist = [];
+    if (typeof(todolist) == 'undefined') {
+        todolist = [];
     }
     next();
 });
 
 app.get('/todo', function(req, res) {
-    res.render('todo.ejs', {todolist: req.session.todolist});
+    res.render('todo.ejs', {todolist: todolist});
 });
 
-app.post('/todo/ajouter/', urlencodedParser, function(req, res) {
-    if (req.body.newtodo != '') {
-        req.session.todolist.push(req.body.newtodo);
-    }
-    res.redirect('/todo');
-});
+io.sockets.on('connection', function (socket) {
+    console.log('Connexion d\'un nouvel utilisateur');
+    // Dès qu'on nous donne un pseudo, on le stocke en variable de session et on informe les autres personnes
+    socket.on('ajouter', function(task) {
+        if(task != ''){
+            todolist.push(req.body.task);
+            socket.broadcast.emit('ajouter', task);
+        }
+    });
 
+    // Dès qu'on reçoit un message, on récupère le pseudo de son auteur et on le transmet aux autres personnes
+    socket.on('message', function (message) {
+        message = ent.encode(message);
+        socket.broadcast.emit('message', {pseudo: socket.pseudo, message: message});
+    }); 
+});
+/*
 app.get('/todo/supprimer/:id', function(req, res) {
     if (req.params.id != '') {
         req.session.todolist.splice(req.params.id, 1);
     }
     res.redirect('/todo');
-});
+});*/
 
 app.use(function(req, res, next){
     res.redirect('/todo');
 });
 
-app.listen(8080);
+server.listen(8080);
