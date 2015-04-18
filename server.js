@@ -16,18 +16,24 @@ app.get('/todo', function(req, res) {
 
 io.sockets.on('connection', function (socket) {
     console.log('Connexion d\'un nouvel utilisateur');
+    if (typeof(todolist) != 'undefined') {
+        socket.emit('nbTasksRefresh', todolist.length);
+    }
+    //socket.emit('refresh_nb_tasks', todolist.length);
     // Dès qu'on nous donne un pseudo, on le stocke en variable de session et on informe les autres personnes
     socket.on('ajouter', function(task) {
         if(task != ''){
-            todolist.push(req.body.task);
+            console.log('on push une task');
+            todolist.push(task);
             socket.broadcast.emit('ajouter', task);
         }
     });
 
     // Dès qu'on reçoit un message, on récupère le pseudo de son auteur et on le transmet aux autres personnes
-    socket.on('message', function (message) {
-        message = ent.encode(message);
-        socket.broadcast.emit('message', {pseudo: socket.pseudo, message: message});
+    socket.on('supprimer', function (id) {
+        console.log('on retire une task');
+        todolist.splice(id, 1);
+        socket.broadcast.emit('supprimer', id);
     }); 
 });
 /*

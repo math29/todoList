@@ -9,9 +9,9 @@
     </head>
     <body>
         <h1>Ma todolist</h1>
-        <ul>
+        <ul id="zone_todo">
         <% todolist.forEach(function(todo, index) { %>
-            <li><a href="/todo/supprimer/<%= index %>">✘</a> <%= todo %></li>
+            <li><button class="delete" id="<%= index %>">✘</button> <%= todo %></li>
         <% }); %>
         </ul>
         <form action="/todo" method="post" id="form_todo">
@@ -28,16 +28,21 @@
 
             // Connexion à socket.io
             var socket = io.connect('http://localhost:8080');
+            var nbTasks = 0;
 
             // Quand on reçoit un message, on l'insère dans la page
-            socket.on('message', function(data) {
-                insereMessage(data.pseudo, data.message)
-            })
+            socket.on('ajouter', function(data) {
+                insereTask(data);
+            });
 
-            // Quand un nouveau client se connecte, on affiche l'information
-            socket.on('nouveau_client', function(pseudo) {
-                $('#zone_chat').prepend('<p><em>' + pseudo + ' a rejoint le Chat !</em></p>');
-            })
+            socket.on('supprimer', function(id) {
+                deleteTask(id);
+            });
+
+            socket.on('nbTasksRefresh', function(nb){
+                nbTasks = nb;
+                console.log('On met le nb Taches a jours :' + nbTasks);
+            });
 
             // Lorsqu'on envoie le formulaire, on transmet le message et on l'affiche sur la page
             $('#form_todo').submit(function () {
@@ -47,10 +52,26 @@
                 $('#newtodo').val('').focus(); // Vide la zone de Chat et remet le focus dessus
                 return false; // Permet de bloquer l'envoi "classique" du formulaire
             });
+
+            $('.delete').click(function () {
+                var $deleted = $(this);
+                var id = $deleted.attr('id');
+                console.log(id);
+                /*socket.emit('ajouter', data); // Transmet le message aux autres
+                insereTask(data); // Affiche le message aussi sur notre page
+                $('#newtodo').val('').focus(); // Vide la zone de Chat et remet le focus dessus*/
+                return false; // Permet de bloquer l'envoi "classique" du formulaire
+            });
             
-            // Ajoute un message dans la page
+            // Ajoute une task dans la page
             function insereTask(data) {
-                $('#zone_chat').prepend('<li><a href="/todo/supprimer/1">✘</a>'+data+'</li>');
+                nbTasks+=1;
+                console.log('nb Tasks : '+nbTasks);
+                $('#zone_todo').prepend('<li><button class="delete" id='+nbTasks+'>✘</button>'+data+'</li>');
+            }
+
+            function deleteTask(id) {
+
             }
         </script>
     </body>
