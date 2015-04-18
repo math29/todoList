@@ -65,9 +65,9 @@
             
             // Ajoute une task dans la page
             function insereTask(data) {
-                nbTasks+=1;
-                console.log('nb Tasks : '+nbTasks);
-                $('#zone_todo').prepend('<li><button class="delete" id='+nbTasks+'>✘</button>'+data+'</li>');
+                data.forEach(function(entry){
+                    $('#zone_todo').prepend('<li><button class="delete" id="<%= index %>">✘</button> <%= todo %></li>');
+                });
             }
 
             function deleteTask(id) {
